@@ -30,7 +30,7 @@ func main() {
 
 	queueSrv := queueservice.New(connectRabbitMQ, channelRabbitMQ)
 
-	messages, err := queueSrv.NewConsumer("Email")
+	emails, err := queueSrv.NewConsumer("Email")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,9 +38,9 @@ func main() {
 	forever := make(chan bool)
 
 	go func() {
-		for message := range messages {
-			// For example, show received message in a console.
-			log.Printf(" > Received message: %s\n", message.Body)
+		for email := range emails {
+			// For example, show received email in a console.
+			log.Printf(" > Received email: %s\n", email.Body)
 		}
 	}()
 

@@ -56,7 +56,7 @@ func main() {
 	)
 
 	// Add route.
-	app.Get("/send", func(c *fiber.Ctx) error {
+	app.Get("/sendEmail", func(c *fiber.Ctx) error {
 		// Create a message to publish.
 		message := amqp.Publishing{
 			ContentType: "text/plain",
@@ -70,6 +70,27 @@ func main() {
 			false,   // mandatory
 			false,   // immediate
 			message, // message to publish
+		); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	app.Get("/sendMessage", func(c *fiber.Ctx) error {
+		// Create a message to publish.
+		message := amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(c.Query("msg")),
+		}
+
+		// Attempt to publish a message to the queue.
+		if err := channelRabbitMQ.Publish(
+			"",        // exchange
+			"Message", // queue name
+			false,     // mandatory
+			false,     // immediate
+			message,   // message to publish
 		); err != nil {
 			return err
 		}
