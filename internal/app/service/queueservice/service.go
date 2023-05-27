@@ -1,14 +1,17 @@
 package queueservice
 
-import "notifier/internal/app/model"
+import (
+	"github.com/streadway/amqp"
+)
 
 type QueueService struct {
-	Connection model.Conn
+	Connection *amqp.Connection
+	Channel    *amqp.Channel
 }
 
 type IService interface {
 }
 
-func New(conn model.Conn) *QueueService {
-	return &QueueService{Connection: conn}
+func New(conn *amqp.Connection, channel *amqp.Channel) *QueueService {
+	return &QueueService{Connection: conn, Channel: channel}
 }
