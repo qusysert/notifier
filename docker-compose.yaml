@@ -12,38 +12,37 @@ services:
     volumes:
       - ${HOME}/dev-rabbitmq/data/:/var/lib/rabbitmq
       - ${HOME}/dev-rabbitmq/log/:/var/log/rabbitmq
+    command: sh -c "chown -R rabbitmq:rabbitmq /var/log/rabbitmq && rabbitmq-server"
     restart: always
     networks:
       - dev-network
 
-  sender:
-    container_name: sender
-    ports:
-      - 3000:3000
-    build:
-      context: .
-      dockerfile: Dockerfile-sender
-    environment:
-      AMQP_SERVER_URL: amqp://guest:guest@notifier:5672/
-    restart: always
-    networks:
-      - dev-network
-    depends_on:
-      - message_broker
-
-  notifier:
-    container_name: notifier
-    build:
-      context: .
-      dockerfile: Dockerfile-notifier
-    environment:
-      AMQP_SERVER_URL: amqp://guest:guest@notifier:5672/
-    restart: always
-    networks:
-      - dev-network
-    depends_on:
-      - sender
-      - message_broker
+#  sender:
+#    container_name: sender
+#    ports:
+#      - 3000:3000
+#    build:
+#      context: .
+#      dockerfile: Dockerfile-sender
+#    environment:
+#      AMQP_SERVER_URL: amqp://guest:guest@notifier:5672/
+#    restart: always
+#    networks:
+#      - dev-network
+#    depends_on:
+#      - message_broker
+#
+#  notifier:
+#    container_name: notifier
+#    build:
+#      context: .
+#      dockerfile: Dockerfile-notifier
+#    restart: always
+#    networks:
+#      - dev-network
+#    depends_on:
+#      - sender
+#      - message_broker
 
 networks:
   # Create a new Docker network.
