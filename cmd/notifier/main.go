@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
 	"log"
+	"notifier/internal/app/model"
 	"notifier/internal/app/service/queueservice"
+	"notifier/internal/app/service/tgservice"
 	"notifier/internal/pkg/config"
 )
 
@@ -20,8 +23,6 @@ func main() {
 	}
 	defer connectRabbitMQ.Close()
 
-	// Opening a channel to our RabbitMQ instance over
-	// the connection we have already established.
 	channelRabbitMQ, err := connectRabbitMQ.Channel()
 	if err != nil {
 		panic(err)
@@ -29,8 +30,9 @@ func main() {
 	defer channelRabbitMQ.Close()
 
 	queueSrv := queueservice.New(connectRabbitMQ, channelRabbitMQ)
+	tgSrv := tgservice.New()
 
-	emails, err := queueSrv.NewConsumer("Email")
+	messages, err := queueSrv.NewConsumer("Message")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,9 +40,17 @@ func main() {
 	forever := make(chan bool)
 
 	go func() {
-		for email := range emails {
-			// For example, show received email in a console.
-			log.Printf(" > Received email: %s\n", email.Body)
+		for message := range messages {
+			var msg model.Message
+			err := json.Unmarshal(message.Body, &msg)
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = tgSrv.SendMessage(msg)
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Printf(" > Sending message: %s\n", message.Body)
 		}
 	}()
 

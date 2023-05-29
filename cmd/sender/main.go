@@ -36,12 +36,12 @@ func main() {
 	// With the instance and declare Queues that we can
 	// publish and subscribe to.
 	_, err = channelRabbitMQ.QueueDeclare(
-		"Email", // queue name
-		true,    // durable
-		false,   // auto delete
-		false,   // exclusive
-		false,   // no wait
-		nil,     // arguments
+		"Message", // queue name
+		true,      // durable
+		false,     // auto delete
+		false,     // exclusive
+		false,     // no wait
+		nil,       // arguments
 	)
 	if err != nil {
 		panic(err)
@@ -55,43 +55,22 @@ func main() {
 		logger.New(), // add simple logger
 	)
 
-	// Add route.
-	app.Get("/sendEmail", func(c *fiber.Ctx) error {
+	app.Post("/send", func(c *fiber.Ctx) error {
 		// Create a message to publish.
 		message := amqp.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte(c.Query("msg")),
+			Body:        c.Body(),
 		}
 
 		// Attempt to publish a message to the queue.
-		if err := channelRabbitMQ.Publish(
-			"",      // exchange
-			"Email", // queue name
-			false,   // mandatory
-			false,   // immediate
-			message, // message to publish
-		); err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	app.Get("/sendMessage", func(c *fiber.Ctx) error {
-		// Create a message to publish.
-		message := amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(c.Query("msg")),
-		}
-
-		// Attempt to publish a message to the queue.
-		if err := channelRabbitMQ.Publish(
+		err := channelRabbitMQ.Publish(
 			"",        // exchange
 			"Message", // queue name
 			false,     // mandatory
 			false,     // immediate
 			message,   // message to publish
-		); err != nil {
+		)
+		if err != nil {
 			return err
 		}
 

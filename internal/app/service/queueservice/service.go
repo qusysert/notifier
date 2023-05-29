@@ -9,9 +9,6 @@ type QueueService struct {
 	Channel    *amqp.Channel
 }
 
-type IService interface {
-}
-
 func New(conn *amqp.Connection, channel *amqp.Channel) *QueueService {
 	return &QueueService{Connection: conn, Channel: channel}
 }
