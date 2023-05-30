@@ -13,7 +13,7 @@ Notifier is a backend service for sending messages to multiple Telegram users us
 -   Connects to RabbitMQ and listens for incoming messages
 -   Deserializes messages from JSON format into a  Message  struct
 -   Sends messages to specified Telegram chat IDs using the Telegram Bot API
--   Logs messages for monitoring purposes
+-   Logs messages for monitoring purposes (TODO)
 
 ## Functional
 
